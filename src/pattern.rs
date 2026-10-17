@@ -56,6 +56,15 @@ impl Pattern {
     }
 }
 
+/// A path with `/` separators, which patterns use; Windows writes `\`.
+pub fn slashes(path: &str) -> String {
+    if cfg!(windows) {
+        path.replace('\\', "/")
+    } else {
+        path.to_string()
+    }
+}
+
 /// Replaces `{name}` with its value; None when a placeholder has no value.
 pub fn fill(template: &str, values: &HashMap<String, String>) -> Option<String> {
     fill_with(template, |name| values.get(name).cloned())

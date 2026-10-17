@@ -31,7 +31,7 @@ use serde_json::{Map, Value};
 
 use crate::contract;
 use crate::ingest::Counts;
-use crate::pattern::{Pattern, expand_home, fill_with};
+use crate::pattern::{Pattern, expand_home, fill_with, slashes};
 use crate::store::{Event, Store};
 
 pub struct Config {
@@ -201,11 +201,11 @@ impl Rule {
 
 impl Config {
     pub fn parse(v: &Value) -> Result<Self> {
-        let files = expand_home(
+        let files = slashes(&expand_home(
             v["files"]
                 .as_str()
                 .context("`files` is required: a path pattern")?,
-        );
+        ));
         // Walk from the last directory before the first wildcard.
         let fixed = &files[..files.find(['*', '{']).unwrap_or(files.len())];
         let root = PathBuf::from(&fixed[..fixed.rfind('/').map_or(0, |i| i + 1)]);
@@ -231,7 +231,11 @@ impl Config {
     fn paths(&self) -> Vec<PathBuf> {
         let mut found = vec![];
         walk(&self.root, &mut |p| {
-            if self.files.captures(&p.to_string_lossy()).is_some() {
+            if self
+                .files
+                .captures(&slashes(&p.to_string_lossy()))
+                .is_some()
+            {
                 found.push(p.to_path_buf());
             }
         });
