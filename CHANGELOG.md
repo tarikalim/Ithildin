@@ -5,6 +5,8 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-17
+
 ### Added
 
 - Linux and Windows builds: the release has a Linux x86_64 `.tar.gz` (program, launcher, icon)
@@ -64,5 +66,6 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - A long title pushed the panel's close button out of view.
 - Injected system text counted as Claude Code prompts and sub-agent messages.
 
-[Unreleased]: https://github.com/tarikalim/Ithildin/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/tarikalim/Ithildin/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/tarikalim/Ithildin/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/tarikalim/Ithildin/releases/tag/v0.3.0

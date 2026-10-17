@@ -1,6 +1,6 @@
 [package]
 name = "ithildin"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 description = "Time-changing data from any source, played back on a timeline. Native app for macOS, Linux and Windows."
 license = "MIT OR Apache-2.0"
