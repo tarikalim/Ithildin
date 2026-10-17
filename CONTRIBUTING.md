@@ -4,15 +4,16 @@ Thanks for helping. Ithildin is a small project, so the process is short.
 
 ## Build and run
 
-You need macOS and stable Rust.
+You need stable Rust; on Linux, also the packages `scripts/install-linux-deps.sh` installs.
 
 ```sh
 cargo run                  # the window, with a debug build
 cargo test
-scripts/bundle.sh          # release build installed as /Applications/Ithildin.app
+scripts/bundle.sh          # macOS: release build installed as /Applications/Ithildin.app
 ```
 
-The window reads `~/Library/Application Support/Ithildin/ithildin.db`. Point `ITHILDIN_DB` at
+The window reads `ithildin.db` in the app's data folder (`~/Library/Application Support/Ithildin`
+on macOS). Point `ITHILDIN_DB` at
 another file to try changes without touching your own data.
 
 ## Before a pull request
@@ -37,7 +38,8 @@ The pull request check runs these, and also checks:
 - **No secrets** in the new commits (gitleaks).
 - **Dependencies**: no known vulnerability (RustSec), only the licences in `deny.toml`.
 
-Clippy and the tests run on macOS and are skipped while the pull request is a draft.
+Clippy and the tests run on macOS and are skipped while the pull request is a draft; `ci.yml` also
+builds and tests on Linux and Windows.
 
 - One change per pull request, with a test when it changes behaviour.
 - Code follows `cargo fmt`'s defaults. Keep code comments to a line or two; the reasoning goes in

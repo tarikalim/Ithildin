@@ -1,3 +1,6 @@
+// Release builds on Windows are GUI apps: no console window behind the window.
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
+
 mod contract;
 mod history;
 mod ingest;
@@ -21,6 +24,18 @@ const USAGE: &str = "usage:
   ithildin mcp          MCP server over stdio
   ithildin sources      list what the database holds";
 
+/// GUI-subsystem builds have no console; reuse the parent terminal's for CLI output.
+#[cfg(windows)]
+fn attach_console() {
+    unsafe extern "system" {
+        fn AttachConsole(pid: u32) -> i32;
+    }
+    unsafe { AttachConsole(u32::MAX) };
+}
+
+#[cfg(not(windows))]
+fn attach_console() {}
+
 /// Runs a CLI subcommand and exits.
 fn exit_with(r: Result<()>) -> ! {
     if let Err(e) = r {
@@ -32,6 +47,10 @@ fn exit_with(r: Result<()>) -> ! {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+    // MCP speaks over the pipes it was started with; the other subcommands print to a terminal.
+    if args.get(1).is_some_and(|a| a != "mcp") {
+        attach_console();
+    }
     match args.get(1).map(String::as_str) {
         None => ui::run(),
         Some("mcp") => exit_with(mcp::run()),

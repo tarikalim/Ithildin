@@ -7,6 +7,17 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Linux and Windows builds: the release has a Linux x86_64 `.tar.gz` (program, launcher, icon)
+  and a Windows x86_64 `.zip`; `ci.yml` builds and tests both.
+
+### Changed
+
+- Links to files open in the system's default app on Linux and Windows; on macOS a link's `app`
+  still chooses the app. Settings shows the database "in folder" with the system's file manager.
+- Zed themes are read from Zed's folders on each system.
+
+### Added
+
 - MIT OR Apache-2.0 licence, contributing guide, code of conduct, security policy, issue and pull
   request templates, a pull request check (fmt, clippy, tests) and Dependabot.
 - README: step-by-step install from a release, including the Gatekeeper step.

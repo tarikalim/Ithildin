@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ithildin
+Comment=Time-changing data played back on a timeline
+Exec=ithildin
+Icon=ithildin
+Terminal=false
+Categories=Office;Utility;
+StartupWMClass=ithildin

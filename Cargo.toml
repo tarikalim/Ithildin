@@ -2,11 +2,11 @@
 name = "ithildin"
 version = "0.3.0"
 edition = "2024"
-description = "Time-changing data from any source, played back on a timeline. Native macOS app."
+description = "Time-changing data from any source, played back on a timeline. Native app for macOS, Linux and Windows."
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/tarikalim/Ithildin"
 readme = "README.md"
-keywords = ["timeline", "events", "mcp", "gpui", "macos"]
+keywords = ["timeline", "events", "mcp", "gpui", "desktop"]
 categories = ["visualization", "gui"]
 publish = false
 
@@ -20,6 +20,9 @@ chrono = "0.4"
 dirs = "7"
 regex = "1.13"
 sha2 = "0.11"
+
+[build-dependencies]
+winresource = "0.1"
 
 [profile.dev]
 # Deps optimized so the UI stays responsive in debug builds.

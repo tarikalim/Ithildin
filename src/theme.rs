@@ -200,11 +200,9 @@ pub fn set(p: Palette) {
 /// Islands iTerm first, then every theme in Zed's user and extension theme files, by name.
 pub fn available() -> Vec<(String, Palette)> {
     let mut themes = vec![(DEFAULT_THEME.to_string(), ISLANDS)];
-    let home = dirs::home_dir().unwrap_or_default();
-    let mut files: Vec<PathBuf> = json_files(&home.join(".config/zed/themes"));
-    if let Ok(exts) =
-        std::fs::read_dir(home.join("Library/Application Support/Zed/extensions/installed"))
-    {
+    let (config, data) = zed_dirs();
+    let mut files: Vec<PathBuf> = json_files(&config.join("themes"));
+    if let Ok(exts) = std::fs::read_dir(data.join("extensions/installed")) {
         for ext in exts.flatten() {
             files.extend(json_files(&ext.path().join("themes")));
         }
@@ -225,6 +223,27 @@ pub fn available() -> Vec<(String, Palette)> {
         }
     }
     themes
+}
+
+/// Zed's config and data folders: ~/.config/zed and its data dir on macOS and Linux,
+/// %APPDATA%\Zed and %LOCALAPPDATA%\Zed on Windows.
+fn zed_dirs() -> (PathBuf, PathBuf) {
+    let home = dirs::home_dir().unwrap_or_default();
+    if cfg!(windows) {
+        let config = dirs::config_dir().unwrap_or_default().join("Zed");
+        (
+            config,
+            dirs::data_local_dir().unwrap_or_default().join("Zed"),
+        )
+    } else if cfg!(target_os = "macos") {
+        (
+            home.join(".config/zed"),
+            home.join("Library/Application Support/Zed"),
+        )
+    } else {
+        let data = dirs::data_dir().unwrap_or_else(|| home.join(".local/share"));
+        (home.join(".config/zed"), data.join("zed"))
+    }
 }
 
 fn json_files(dir: &Path) -> Vec<PathBuf> {

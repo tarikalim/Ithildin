@@ -1405,10 +1405,11 @@ fn span_label(ms: i64) -> String {
     }
 }
 
-/// Opens a link: a file:// link with an `app` in that app (`open -a`), anything else as macOS does.
+/// Opens a link: on macOS a file:// link with an `app` opens in that app (`open -a`); anything
+/// else opens as the system does.
 fn open(link: &Opened, cx: &mut App) {
     match (&link.app, link.url.strip_prefix("file://")) {
-        (Some(app), Some(path)) => {
+        (Some(app), Some(path)) if cfg!(target_os = "macos") => {
             if let Err(e) = std::process::Command::new("open")
                 .args(["-a", app, &path.replace("%20", " ")])
                 .spawn()
@@ -1416,6 +1417,7 @@ fn open(link: &Opened, cx: &mut App) {
                 eprintln!("open {} in {app}: {e}", link.url);
             }
         }
+        (_, Some(path)) => cx.open_with_system(std::path::Path::new(&path.replace("%20", " "))),
         _ => cx.open_url(&link.url),
     }
 }

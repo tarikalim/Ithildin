@@ -28,7 +28,7 @@ Every way in (`add_events`, `ithildin ingest`, a configured source) produces thi
 | `label` | The entity's name on its card, lane and panel. The newest label of any event wins. |
 | `group` | Colour: entities of one group share a hue. |
 | `parent` | Another entity of the same source; this entity's lane sits under its parent's, behind a toggle. |
-| `links` | `[{"label", "url", "app"?}]`, `http(s)://` or `file://`. `app` opens a file in that Mac app (e.g. `Zed`). |
+| `links` | `[{"label", "url", "app"?}]`, `http(s)://` or `file://`. On macOS, `app` opens a file in that app (e.g. `Zed`); elsewhere the system's default app opens it. |
 | `subject` | Shown as the event's text in tooltips and history. |
 
 Every other field is metadata: listed in the entity panel, clickable when it is a URL or a path.
