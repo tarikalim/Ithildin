@@ -53,26 +53,5 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - A long title pushed the panel's close button out of view.
 - Injected system text counted as Claude Code prompts and sub-agent messages.
 
-## [0.2.0] - 2026-10-17
-
-### Added
-
-- Claude Code sessions as a `jsonl` source: prompts and pull requests, with links to the
-  transcript (opened in a chosen app) and the PR.
-- Group colours from Radix Colors.
-- README.
-
-## [0.1.0] - 2026-10-16
-
-### Added
-
-- Event store (SQLite), contract v1, `ithildin ingest` and an MCP server.
-- Built-in `git-paths` and `jsonl` source types, read in the background and kept current.
-- Timeline window: board of states, stream of moments, date range, entity panel with links and
-  history, Islands iTerm colours.
-- App icon, macOS bundle script, release workflow for universal builds.
-
 [Unreleased]: https://github.com/tarikalim/Ithildin/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/tarikalim/Ithildin/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/tarikalim/Ithildin/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/tarikalim/Ithildin/releases/tag/v0.1.0
+[0.3.0]: https://github.com/tarikalim/Ithildin/releases/tag/v0.3.0
