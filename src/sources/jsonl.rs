@@ -210,7 +210,10 @@ impl Config {
         let files = slashes(&native);
         // Walk from the last directory before the first wildcard.
         let fixed = &files[..files.find(['*', '{']).unwrap_or(files.len())];
-        let root = PathBuf::from(&native[..fixed.rfind('/').map_or(0, |i| i + 1)]);
+        // Rebuilt from its components so a `/` written in the pattern becomes `\` on Windows.
+        let root: PathBuf = Path::new(&native[..fixed.rfind('/').map_or(0, |i| i + 1)])
+            .components()
+            .collect();
         let rules = match &v["rules"] {
             Value::Null => vec![Rule::parse(v)?],
             Value::Array(a) if !a.is_empty() => a
