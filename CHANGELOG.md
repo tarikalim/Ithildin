@@ -52,3 +52,6 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - Labels with line breaks drew over the lane above.
 - A long title pushed the panel's close button out of view.
 - Injected system text counted as Claude Code prompts and sub-agent messages.
+
+[Unreleased]: https://github.com/tarikalim/Ithildin/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/tarikalim/Ithildin/releases/tag/v0.3.0
