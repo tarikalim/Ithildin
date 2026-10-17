@@ -5,7 +5,7 @@ description: Read and record time-changing data in Ithildin, a local timeline of
 
 # Ithildin
 
-Ithildin keeps time-changing data as **events** in one SQLite file on this Mac and plays them back
+Ithildin keeps time-changing data as **events** in one SQLite file on this computer and plays them back
 on a timeline: a board of states and a stream of moments. Every source (cards in git, Claude
 Code transcripts, anything else) ends up in the same shape, so one set of tools reads all of them.
 

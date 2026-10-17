@@ -5,6 +5,19 @@ and versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-17
+
+### Added
+
+- Linux and Windows builds: the release has a Linux x86_64 `.tar.gz` (program, launcher, icon)
+  and a Windows x86_64 `.zip`; `ci.yml` builds and tests both.
+
+### Changed
+
+- Links to files open in the system's default app on Linux and Windows; on macOS a link's `app`
+  still chooses the app. Settings shows the database "in folder" with the system's file manager.
+- Zed themes are read from Zed's folders on each system.
+
 ### Added
 
 - MIT OR Apache-2.0 licence, contributing guide, code of conduct, security policy, issue and pull
@@ -53,5 +66,6 @@ and versions follow [Semantic Versioning](https://semver.org/).
 - A long title pushed the panel's close button out of view.
 - Injected system text counted as Claude Code prompts and sub-agent messages.
 
-[Unreleased]: https://github.com/tarikalim/Ithildin/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/tarikalim/Ithildin/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/tarikalim/Ithildin/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/tarikalim/Ithildin/releases/tag/v0.3.0

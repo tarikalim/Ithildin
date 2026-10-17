@@ -544,17 +544,13 @@ impl Settings {
             .child(
                 div().child(
                     Button::new("reveal")
-                        .label("Show in Finder")
+                        .label(if cfg!(target_os = "macos") {
+                            "Show in Finder"
+                        } else {
+                            "Show in folder"
+                        })
                         .outline()
-                        .on_click(move |_, _, _| {
-                            if let Err(e) = std::process::Command::new("open")
-                                .arg("-R")
-                                .arg(&dir)
-                                .spawn()
-                            {
-                                eprintln!("show in finder: {e}");
-                            }
-                        }),
+                        .on_click(move |_, _, cx| cx.reveal_path(&dir)),
                 ),
             )
     }

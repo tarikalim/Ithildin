@@ -10,30 +10,69 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  macos:
-    # macOS only: Ithildin is a Mac app. In a private repo macOS
-    # minutes count 10×, so this runs on tags only and there is no per-push CI.
-    runs-on: macos-latest
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+          # 22.04 keeps the glibc floor low for older distros.
+          - os: ubuntu-22.04
+          - os: windows-latest
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-apple-darwin,x86_64-apple-darwin
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --locked --release
-      - name: Universal app
+      - run: mkdir dist && echo "NAME=Ithildin-${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+
+      - name: macOS universal app
+        if: runner.os == 'macOS'
         run: |
-          NAME="Ithildin-${GITHUB_REF_NAME#v}"
-          mkdir dist
           cargo build --locked --release --target aarch64-apple-darwin
           cargo build --locked --release --target x86_64-apple-darwin
           lipo -create -output target/ithildin target/{aarch64,x86_64}-apple-darwin/release/ithildin
           scripts/bundle.sh target/ithildin dist
-          ditto -c -k --keepParent dist/Ithildin.app "dist/$NAME-macos-universal.zip"
-          hdiutil create -volname Ithildin -srcfolder dist/Ithildin.app -format UDZO "dist/$NAME-macos-universal.dmg"
-          rm -rf dist/Ithildin.app
+          ditto -c -k --keepParent "dist/Ithildin.app" "dist/$NAME-macos-universal.zip"
+          hdiutil create -volname "Ithildin" -srcfolder "dist/Ithildin.app" -format UDZO "dist/$NAME-macos-universal.dmg"
+          rm -rf "dist/Ithildin.app"
+
+      - name: Linux tarball
+        if: runner.os == 'Linux'
+        run: |
+          scripts/install-linux-deps.sh
+          cargo build --locked --release
+          mkdir "$NAME"
+          cp target/release/ithildin packaging/ithildin.desktop assets/ithildin.png "$NAME/"
+          tar -czf "dist/$NAME-linux-x86_64.tar.gz" "$NAME"
+
+      - name: Windows zip
+        if: runner.os == 'Windows'
+        run: |
+          cargo build --locked --release
+          7z a "dist/$NAME-windows-x86_64.zip" ./target/release/ithildin.exe
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-${{ matrix.os }}
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}

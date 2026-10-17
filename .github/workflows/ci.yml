@@ -1,0 +1,36 @@
+name: CI (Linux, Windows)
+# check.yml tests on macOS; Ithildin also ships for Linux and Windows, so their builds run here.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  # No debug info: smaller caches, faster links.
+  CARGO_PROFILE_DEV_DEBUG: 0
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Linux deps
+        if: runner.os == 'Linux'
+        run: scripts/install-linux-deps.sh
+      - run: cargo build --locked
+      - run: cargo test --locked

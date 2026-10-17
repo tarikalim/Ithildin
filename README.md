@@ -1,6 +1,6 @@
 # Ithildin
 
-A native macOS app that keeps time-changing data as events and plays it back on a timeline. Move the playhead and see what was true at that moment: which column each task was in, which Claude Code session was busy, which PR was opened. Written in Rust with [GPUI](https://www.gpui.rs/). Its data lives in one SQLite file on the Mac.
+A native app for macOS, Linux and Windows that keeps time-changing data as events and plays it back on a timeline. Move the playhead and see what was true at that moment: which column each task was in, which Claude Code session was busy, which PR was opened. Written in Rust with [GPUI](https://www.gpui.rs/). Its data lives in one SQLite file on your computer.
 
 The name is Tolkien's *ithildin*, moon-letters: writing that shows only on the right night, under the right moon.
 
@@ -64,32 +64,59 @@ Configured sources are caught up when the window opens and checked every 5 secon
 
 ### From a release
 
-1. Download `Ithildin-<version>-macos-universal.dmg` from [Releases](../../releases). One build runs on Apple Silicon and Intel.
-2. Open it and drag **Ithildin** to **Applications**.
-3. The app is signed ad hoc, not notarized, so macOS blocks its first launch. Either open **System Settings → Privacy & Security** and choose **Open Anyway** next to the Ithildin message, or remove the download's quarantine flag once:
+[Releases](../../releases) has a universal macOS app (`.dmg` or `.zip`, Apple Silicon and Intel), a Linux x86_64 `.tar.gz` and a Windows x86_64 `.zip`.
+
+**macOS**
+
+1. Open `Ithildin-<version>-macos-universal.dmg` and drag **Ithildin** to **Applications**.
+2. The app is signed ad hoc, not notarized, so macOS blocks its first launch. Either open **System Settings → Privacy & Security** and choose **Open Anyway** next to the Ithildin message, or remove the download's quarantine flag once:
 
    ```sh
    xattr -dr com.apple.quarantine /Applications/Ithildin.app
    ```
 
-4. Optional, the command line and the MCP server for Claude Code:
+**Linux**
+
+1. Extract the archive: `tar -xzf Ithildin-<version>-linux-x86_64.tar.gz`
+2. Install the program, launcher and icon for your user:
 
    ```sh
-   ln -sf /Applications/Ithildin.app/Contents/MacOS/ithildin ~/.local/bin/ithildin
-   claude mcp add --scope user ithildin -- /Applications/Ithildin.app/Contents/MacOS/ithildin mcp
+   install -Dm755 Ithildin-<version>/ithildin ~/.local/bin/ithildin
+   install -Dm644 Ithildin-<version>/ithildin.desktop ~/.local/share/applications/ithildin.desktop
+   install -Dm644 Ithildin-<version>/ithildin.png ~/.local/share/icons/hicolor/512x512/apps/ithildin.png
    ```
+
+3. Open **Ithildin** from the application menu. `~/.local/bin` must be on your `PATH`.
+
+**Windows**
+
+1. Extract the zip to a folder you keep, for example `%LOCALAPPDATA%\Programs\Ithildin`.
+2. Double-click `ithildin.exe`. The program isn't signed: if Windows shows **Windows protected your PC**, click **More info**, then **Run anyway**.
+
+**Optional, the command line and the MCP server for Claude Code** (on Linux the program is already `~/.local/bin/ithildin`):
+
+```sh
+# macOS
+ln -sf /Applications/Ithildin.app/Contents/MacOS/ithildin ~/.local/bin/ithildin
+claude mcp add --scope user ithildin -- /Applications/Ithildin.app/Contents/MacOS/ithildin mcp
+# Linux
+claude mcp add --scope user ithildin -- ~/.local/bin/ithildin mcp
+# Windows
+claude mcp add --scope user ithildin -- %LOCALAPPDATA%\Programs\Ithildin\ithildin.exe mcp
+```
 
 The window opens empty. Add a source in **Settings → Sources**, or let an agent add one through MCP.
 
 ### From source
 
-Rust stable on macOS:
+Rust stable; on Linux, also the packages `scripts/install-linux-deps.sh` installs.
 
 ```sh
-scripts/bundle.sh          # builds release and installs /Applications/Ithildin.app in place
+cargo run --release
+scripts/bundle.sh          # macOS: builds release and installs /Applications/Ithildin.app in place
 ```
 
-Then step 4 above.
+Then the optional step above.
 
 ### Command line
 
@@ -104,11 +131,11 @@ The app, the CLI and the MCP server are one binary; `ithildin` with no arguments
 | `ithildin sources` | Lists sources, kinds, counts and time spans |
 | `ithildin mcp` | Runs the MCP server over stdio |
 
-The database is `~/Library/Application Support/Ithildin/ithildin.db` (`$ITHILDIN_DB` overrides it).
+The database is `Ithildin/ithildin.db` in the data folder: `~/Library/Application Support` on macOS, `~/.local/share` on Linux, `%APPDATA%` on Windows (`$ITHILDIN_DB` overrides it).
 
 ## Releases
 
-Pushing a `v*` tag runs `.github/workflows/release.yml`: tests, a universal build, and a release with the `.dmg` and `.zip`.
+Pushing a `v*` tag runs `.github/workflows/release.yml`: a universal macOS build (`.dmg` and `.zip`), a Linux `.tar.gz` and a Windows `.zip`, and a release with all of them.
 
 ## Contributing
 
