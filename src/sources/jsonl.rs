@@ -201,14 +201,16 @@ impl Rule {
 
 impl Config {
     pub fn parse(v: &Value) -> Result<Self> {
-        let files = slashes(&expand_home(
+        let native = expand_home(
             v["files"]
                 .as_str()
                 .context("`files` is required: a path pattern")?,
-        ));
+        );
+        // Matched with `/` separators; the walk starts from the native path, so files keep it.
+        let files = slashes(&native);
         // Walk from the last directory before the first wildcard.
         let fixed = &files[..files.find(['*', '{']).unwrap_or(files.len())];
-        let root = PathBuf::from(&fixed[..fixed.rfind('/').map_or(0, |i| i + 1)]);
+        let root = PathBuf::from(&native[..fixed.rfind('/').map_or(0, |i| i + 1)]);
         let rules = match &v["rules"] {
             Value::Null => vec![Rule::parse(v)?],
             Value::Array(a) if !a.is_empty() => a
@@ -483,7 +485,7 @@ mod tests {
     fn rules_conditions_carry_and_refs() -> Result<()> {
         let dir = std::env::temp_dir().join(format!("ithildin-jsonl-rules-{}", std::process::id()));
         std::fs::create_dir_all(dir.join("p"))?;
-        let path = dir.join("p/s1.jsonl");
+        let path = dir.join("p").join("s1.jsonl");
         let lines = [
             r#"{"type":"user","timestamp":"2026-10-16T10:00:00Z","sessionId":"s1","cwd":"/x","message":{"content":"first prompt"}}"#,
             r#"{"type":"last-prompt","sessionId":"s1","lastPrompt":"first prompt"}"#,
@@ -559,7 +561,7 @@ mod tests {
         let dir =
             std::env::temp_dir().join(format!("ithildin-jsonl-sidecar-{}", std::process::id()));
         std::fs::create_dir_all(dir.join("p/s1/subagents"))?;
-        std::fs::write(dir.join("p/s1.jsonl"), "")?;
+        std::fs::write(dir.join("p").join("s1.jsonl"), "")?;
         let agent = |id: &str, meta: Value| -> Result<()> {
             let line = json!({ "type": "user", "isSidechain": true, "timestamp": "2026-10-16T10:00:00Z", "sessionId": "s1", "agentId": id, "message": { "content": "brief" } });
             std::fs::write(
