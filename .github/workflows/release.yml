@@ -1,0 +1,43 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  macos:
+    # macOS only: Ithildin is a Mac app. In a private repo macOS
+    # minutes count 10×, so this runs on tags only and there is no per-push CI.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --locked --release
+      - name: Universal app
+        run: |
+          NAME="Ithildin-${GITHUB_REF_NAME#v}"
+          mkdir dist
+          cargo build --locked --release --target aarch64-apple-darwin
+          cargo build --locked --release --target x86_64-apple-darwin
+          lipo -create -output target/ithildin target/{aarch64,x86_64}-apple-darwin/release/ithildin
+          scripts/bundle.sh target/ithildin dist
+          ditto -c -k --keepParent dist/Ithildin.app "dist/$NAME-macos-universal.zip"
+          hdiutil create -volname Ithildin -srcfolder dist/Ithildin.app -format UDZO "dist/$NAME-macos-universal.dmg"
+          rm -rf dist/Ithildin.app
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prev=$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)
+          git log --pretty='- %s' ${prev:+$prev..}"$GITHUB_REF_NAME" > notes.md
+          gh release create "$GITHUB_REF_NAME" dist/* --title "Ithildin ${GITHUB_REF_NAME#v}" --notes-file notes.md

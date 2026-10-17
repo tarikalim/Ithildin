@@ -1,0 +1,38 @@
+name: Bug report
+description: Something does not work as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add a jsonl source with this config: …
+        2. Open the Stream view
+        3. …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Ithildin version
+      description: From the release you installed, or `git rev-parse --short HEAD`.
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and chip
+      placeholder: macOS 26.1, Apple M3
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots, logs, source config
+      description: Leave out anything private.

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#26386a"/><stop offset="1" stop-color="#121a36"/></linearGradient>
+ <clipPath id="body"><rect x="100" y="100" width="824" height="824" rx="185"/></clipPath>
+ <filter id="soft"><feGaussianBlur stdDeviation="7"/></filter>
+</defs>
+<rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)"/>
+<rect x="100" y="100" width="110" height="824" fill="#0d1328" clip-path="url(#body)"/>
+<circle cx="760" cy="250" r="38" fill="#eaf4ff"/><circle cx="776" cy="238" r="34" fill="#23345f"/>
+<text x="560" y="690" text-anchor="middle" font-family="Didot" font-size="460" fill="#9fd4ff" filter="url(#soft)" opacity="0.7">I</text>
+<text x="560" y="690" text-anchor="middle" font-family="Didot" font-size="460" fill="#eef6ff">I</text>
+<line x1="350" y1="770" x2="770" y2="770" stroke="#e8f1ff" stroke-width="10" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,12 @@
+# Commit messages and PR titles: Conventional Commits (https://www.conventionalcommits.org/).
+style = "conventional"
+# The same limits as the team's commitlint: a 100-character subject, no limit in the body,
+# which holds URLs and pasted output.
+subject_length = 100
+line_length = 0
+merge_commit = true
+# As commitlint's config-conventional: a lower-case subject is fine, and the mood is not checked.
+subject_capitalized = false
+imperative_subject = false
+# commitlint's config-conventional types; Dependabot writes `build(deps)`.
+allowed_types = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test"]

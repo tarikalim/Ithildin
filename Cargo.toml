@@ -1,0 +1,31 @@
+[package]
+name = "ithildin"
+version = "0.3.0"
+edition = "2024"
+description = "Time-changing data from any source, played back on a timeline. Native macOS app."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/tarikalim/Ithildin"
+readme = "README.md"
+keywords = ["timeline", "events", "mcp", "gpui", "macos"]
+categories = ["visualization", "gui"]
+publish = false
+
+[dependencies]
+# gpui-kit re-exports GPUI (gpui-pre) and gpui-component.
+gpui-kit = "=0.7.1"
+rusqlite = { version = "0.40", features = ["bundled"] }
+serde_json = "1"
+anyhow = "1"
+chrono = "0.4"
+dirs = "7"
+regex = "1.13"
+sha2 = "0.11"
+
+[profile.dev]
+# Deps optimized so the UI stays responsive in debug builds.
+package."*" = { opt-level = 2 }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

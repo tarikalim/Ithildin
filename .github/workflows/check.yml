@@ -1,0 +1,102 @@
+name: Check
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  CARGO_TERM_COLOR: always
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+  COMMITTED_VERSION: 1.1.11
+  COMMITTED_SHA256: 1e5c20049eeaa4633e6798283913f92dc90a97f2b5c6dfc28e8c4b7e77a67157
+
+jobs:
+  checks:
+    # Everything that needs no build, on Linux: seconds, billed at 1x.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Branch name
+        # Through env, not inline: a branch name is text from the PR author.
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: scripts/check-branch-name.sh "$BRANCH"
+
+      # Pinned binaries, checked against the release's digest.
+      - name: Install committed and gitleaks
+        run: |
+          set -euo pipefail
+          curl -sSfL -o committed.tar.gz "https://github.com/crate-ci/committed/releases/download/v${COMMITTED_VERSION}/committed-v${COMMITTED_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+          echo "${COMMITTED_SHA256}  committed.tar.gz" | sha256sum -c -
+          curl -sSfL -o gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/bin"
+          tar -xzf committed.tar.gz -C "$RUNNER_TEMP/bin" ./committed
+          tar -xzf gitleaks.tar.gz -C "$RUNNER_TEMP/bin" gitleaks
+          rm committed.tar.gz gitleaks.tar.gz
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Commit messages (Conventional Commits, committed.toml)
+        run: committed "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
+
+      # A co-author trailer makes the named account a contributor; an AI tool is not one.
+      # Session links and "Generated with" lines are the same attribution in another form.
+      - name: No AI co-author or attribution
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          found=$(git log --format=%B "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}" \
+            | grep -iE '^(co-authored-by:.*\b(claude|anthropic|copilot|cursor|codex|openai|chatgpt|gemini|devin)\b|claude-session:)' || true)
+          body=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json body --jq .body \
+            | grep -iE 'generated (with|by) .*(claude|copilot|cursor|codex|chatgpt|gemini|devin)' || true)
+          if [ -n "$found$body" ]; then
+            echo "Remove the AI attribution (commit trailers or PR body):" >&2
+            printf '%s\n' "$found" "$body" >&2
+            exit 1
+          fi
+
+      # Read at run time and piped, never put on the command line: it is text from the PR author.
+      # After a title edit, re-run this job.
+      - name: PR title (Conventional Commits)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json title --jq .title | committed --commit-file -
+
+      - name: Secrets in the new commits
+        run: gitleaks git --log-opts="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}" --redact --no-banner --exit-code 1
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Format
+        run: cargo fmt --check
+
+      # RustSec vulnerabilities, licences, crate sources (deny.toml).
+      - name: Dependencies
+        uses: EmbarkStudios/cargo-deny-action@v2.1.1
+
+  test:
+    # The app is macOS only. In a private repo macOS minutes count 10x, so this waits for the
+    # cheap checks and skips draft pull requests.
+    needs: checks
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo clippy --locked --all-targets -- -D warnings
+      - run: cargo test --locked

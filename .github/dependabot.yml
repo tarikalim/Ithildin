@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    # gpui-kit is pinned on purpose; its updates are taken by hand.
+    ignore:
+      - dependency-name: gpui-kit
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
