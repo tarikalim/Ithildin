@@ -13,7 +13,7 @@ publish = false
 [dependencies]
 # gpui-kit re-exports GPUI (gpui-pre) and gpui-component.
 gpui-kit = "=0.7.1"
-rusqlite = { version = "0.40", features = ["bundled"] }
+rusqlite = { version = "0.41", features = ["bundled"] }
 serde_json = "1"
 anyhow = "1"
 chrono = "0.4"
