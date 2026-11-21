@@ -84,7 +84,7 @@ jobs:
 
       # RustSec vulnerabilities, licences, crate sources (deny.toml).
       - name: Dependencies
-        uses: EmbarkStudios/cargo-deny-action@v2.1.1
+        uses: EmbarkStudios/cargo-deny-action@v2.1.2
 
   test:
     # The app is macOS only. In a private repo macOS minutes count 10x, so this waits for the
